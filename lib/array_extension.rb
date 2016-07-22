@@ -26,23 +26,24 @@ class Array
     raise 'err: not 2d' unless self[0].class == Array
     size = self.length * 2 - 1
     array = Array.new(size) {Array.new}
-    #acquire top and main diagonal
+    # acquire top and main diagonal
     self.length.times do |row|
       (0 .. row).each do |col|
         array[row] << self[row-col][col]
       end
     end
-    #now cover the additional bottom diagonals
-    row = self.length - 1
-    num = row
-    (1..row).each do |index|
-      (index..row).each do |col|
-        temp_arr = self[num - index + 1][col]
-        array[row + index] << temp_arr
-        num -= 1
+    # now cover the additional bottom diagonals
+    (1 .. self.length - 1).reverse_each do |row|
+      offset_value = 0
+      temp_arr = []
+      while row + offset_value < self.length
+        temp_arr << self[self.length - 1 - offset_value][row + offset_value]
+        offset_value += 1
       end
-      num = self.length - 1
+      array[self.length - 1 + row] = temp_arr
     end
+    # phew... now to trim and format
+    
     array
   end
 end
