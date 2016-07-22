@@ -21,13 +21,11 @@ class Game
   end
 
   def check_for_victory
-    check = false
     (1..2).each do |player|
-      check = true if horizontal_check player
-      check = true if vertical_check player
-      check = true if diagonal_check player
+      return true if horizontal_check player
+      return true if vertical_check player
+      return true if diagonal_check player
     end
-    check
   end
 
   private
@@ -66,31 +64,52 @@ class Game
   end
 
   def diagonal_check player
+    diagonals = @pieces.diagonalize 4
+    return true if diagonal_helper diagonals, player
+    reverse_diagonals = @pieces.matrix_flip.diagonalize 4
+    return true if diagonal_helper reverse_diagonals, player
+    false
+  end
 
+  def diagonal_helper arr, player
+    arr.each do |sub_arr|
+      (0..sub_arr.length - 4).each do |index|
+        temp_arr = sub_arr.slice index, index + 4
+        if temp_arr.length == temp_arr.compact.length
+          if checker_helper temp_arr, player
+            puts 'diagonal'
+            return true
+          end
+        end
+      end
+    end
+    false
   end
 
   # takes a four-element arr and checks for consistency
-  def checker_helper row, player
-    if row.length == 0
+  def checker_helper arr, player
+    if arr.length == 0
       true
-    elsif row[0] == player
-      row.slice! 0
-      checker_helper row, player
+    elsif arr[0] == player
+      arr.slice! 0
+      checker_helper arr, player
     else
       false
     end
   end
 end
 
-board = Game.new(6)
+board = Game.new(5)
 
-board.add_piece 3, 2
-board.add_piece 3, 2
-board.add_piece 3, 2
-board.add_piece 3, 2
-board.add_piece 0, 2
-board.add_piece 0, 2
-board.add_piece 5, 1
-board.add_piece 4, 5
+board.add_piece 1, 1
+board.add_piece 1, 1
+board.add_piece 1, 2
+board.add_piece 1, 1
+board.add_piece 2, 2
+board.add_piece 2, 1
+board.add_piece 2, 1
+board.add_piece 3, 1
+board.add_piece 3, 1
+board.add_piece 4, 1
 print board.pieces.board_print
-print board.pieces.diagonalize.board_print
+puts board.check_for_victory ? 'player 1 has won!' : 'nothing yet'
