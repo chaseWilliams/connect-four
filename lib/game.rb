@@ -22,10 +22,11 @@ class Game
 
   def check_for_victory
     (1..2).each do |player|
-      return true if horizontal_check player
-      return true if vertical_check player
-      return true if diagonal_check player
+      return {win: true, player: player} if horizontal_check player
+      return {win: true, player: player} if vertical_check player
+      return {win: true, player: player} if diagonal_check player
     end
+    {win: false, player: nil}
   end
 
   private
