@@ -1,15 +1,18 @@
-require './array_extension'
-require 'matrix'
-### var player can ONLY be 1 or 2, as in player1 or player2
 
+### var player can ONLY be 1 or 2, as in player1 or player2
+require 'ostruct'
 class Game
   attr_reader :pieces, :piece_count, :SIZE
-  def initialize boardSize
+  def initialize boardSize, pieces = nil, piece_count = nil
     @SIZE = boardSize
     #create a square 2-D array of @SIZE length, filled with 0's
-    @pieces = Array.new(@SIZE) {Array.new(@SIZE, 0)}
-
-    @piece_count = Array.new(@SIZE, 0)
+    if pieces.nil? || piece_count.nil?
+      @pieces = Array.new(@SIZE) {Array.new(@SIZE, 0)}
+      @piece_count = Array.new(@SIZE, 0)
+    else
+      @pieces = pieces
+      @piece_count = piece_count
+    end
   end
 
   def add_piece col, player
@@ -21,12 +24,27 @@ class Game
   end
 
   def check_for_victory
+    print @pieces.board_print
     (1..2).each do |player|
       return {win: true, player: player} if horizontal_check player
       return {win: true, player: player} if vertical_check player
       return {win: true, player: player} if diagonal_check player
     end
     {win: false, player: nil}
+  end
+
+  ## Game#dump and Game#load are for serializing and reconstituting the object,
+  ## as to add translation to JSON
+  def dump
+    {
+        pieces: @pieces,
+        piece_count: @piece_count,
+        size: @SIZE
+    }
+  end
+
+  def self.load hash
+    self.new(hash['size'], hash['pieces'], hash['piece_count'])
   end
 
   private
@@ -99,18 +117,3 @@ class Game
     end
   end
 end
-
-board = Game.new(5)
-
-board.add_piece 1, 1
-board.add_piece 1, 1
-board.add_piece 1, 2
-board.add_piece 1, 1
-board.add_piece 2, 2
-board.add_piece 2, 1
-board.add_piece 2, 1
-board.add_piece 3, 1
-board.add_piece 3, 1
-board.add_piece 4, 1
-print board.pieces.board_print
-puts board.check_for_victory ? 'player 1 has won!' : 'nothing yet'
