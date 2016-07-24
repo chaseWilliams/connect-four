@@ -17,7 +17,6 @@ class Array
   end
 
   ## returns a matrix that represents ALL of the diagonals in the given array
-  ## tested for accepting square matrices
   ## format is as follows:
   ## the method starts from the top left corner and ends at the bottom right corner
   ## each row is its own diagonal, with the first value being the leftmost original value
@@ -29,7 +28,7 @@ class Array
   ## floor is an optional param that only returns diagonals that are at least the given length
   def diagonalize floor = 0
     raise 'err: not 2d' unless self[0].class == Array
-    size = self.length * 2 - 1
+    size = self.length + self[0].length - 1
     array = Array.new(size) {Array.new}
     # acquire top and main diagonal
     self.length.times do |row|
@@ -38,15 +37,29 @@ class Array
       end
     end
     # now cover the additional bottom diagonals
-    (1 .. self.length - 1).reverse_each do |row|
-      offset_value = 0
-      temp_arr = []
-      while row + offset_value < self.length
-        temp_arr << self[self.length - 1 - offset_value][row + offset_value]
-        offset_value += 1
+    sides_difference = self.length[0] - self.length
+    if sides_difference == 0
+      (1 .. self.length - 1).reverse_each do |row|
+        offset_value = 0
+        temp_arr = []
+        while row + offset_value < self.length
+          temp_arr << self[self.length - 1 - offset_value][row + offset_value]
+          offset_value += 1
+        end
+        array[self.length - 1 + row] = temp_arr
       end
-      array[self.length - 1 + row] = temp_arr
+    else
+      (1 .. self[0].length - 1).reverse_each do |row|
+        offset_value = 0
+        temp_arr = []
+        while row + offset_value < self[0].length
+          temp_arr << self[self.length - 1 - offset_value][row + offset_value]
+          offset_value += 1
+        end
+        array[self[0].length - 2 + row] = temp_arr
+      end
     end
+
     # phew... now to trim and format
     unless floor == 0
       index = 0
@@ -65,7 +78,6 @@ class Array
         array[index] << nil
       end
     end
-
     array
   end
 
@@ -83,3 +95,7 @@ class Array
     map {|elem| elem.flip}
   end
 end
+
+#arr = [[0, 0, 0, 0, 0, 0], [1, 0, 0, 0, 0, 0], [1, 1, 0, 0, 0, 0], [2, 1, 1, 0, 0, 0], [1, 1, 2, 1, 0, 0]]
+#print arr.board_print
+#print arr.diagonalize.board_print

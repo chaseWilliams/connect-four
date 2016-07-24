@@ -1,13 +1,13 @@
-
+require '../lib/array_extension'
 ### var player can ONLY be 1 or 2, as in player1 or player2
-require 'ostruct'
+
 class Game
   attr_reader :pieces, :piece_count, :SIZE
   def initialize boardSize, pieces = nil, piece_count = nil
     @SIZE = boardSize
     #create a square 2-D array of @SIZE length, filled with 0's
     if pieces.nil? || piece_count.nil?
-      @pieces = Array.new(@SIZE) {Array.new(@SIZE, 0)}
+      @pieces = Array.new(@SIZE) {Array.new(@SIZE + 1, 0)}
       @piece_count = Array.new(@SIZE, 0)
     else
       @pieces = pieces
@@ -117,3 +117,17 @@ class Game
     end
   end
 end
+
+game = Game.new(5)
+game.add_piece 0, 1
+game.add_piece 0, 2
+game.add_piece 0, 1
+game.add_piece 0, 1
+game.add_piece 1, 1
+game.add_piece 1, 1
+game.add_piece 1, 1
+game.add_piece 2, 2
+game.add_piece 2, 1
+game.add_piece 3, 1
+puts game.check_for_victory ? 'yes' : 'no'
+print game.pieces
