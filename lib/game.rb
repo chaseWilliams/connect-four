@@ -1,4 +1,4 @@
-require '../lib/array_extension'
+
 ### var player can ONLY be 1 or 2, as in player1 or player2
 
 class Game
@@ -130,4 +130,9 @@ game.add_piece 2, 2
 game.add_piece 2, 1
 game.add_piece 3, 1
 puts game.check_for_victory ? 'yes' : 'no'
-print game.pieces
+print game.pieces.board_print
+
+json = game.dump.to_json
+parsed = JSON.parse json
+board = Game.new(parsed['size'], parsed['pieces'], parsed['piece_count'])
+print board.pieces.board_print
