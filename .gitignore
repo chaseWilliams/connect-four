@@ -18,8 +18,8 @@ continuum*
 .repl_history
 build/
 
-## Redis
-dump.rdb
+## Cache
+tmp*
 ## Documentation cache and generated files:
 /.yardoc/
 /_yardoc/

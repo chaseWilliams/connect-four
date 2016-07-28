@@ -4,7 +4,8 @@ class App < Sinatra::Application
 
   def initialize
     super
-    @db = Redis.new url: ENV['REDIS_URI'] # 'redis://127.0.0.1:6379' for default
+    # note that a Redis instance must already be running
+
   end
 
   # for front end
@@ -37,7 +38,7 @@ class App < Sinatra::Application
   def begin_game board_size
     puts "begin_game called"
     game = Game.new(board_size)
-    @db.set 'curr_game', game.dump.to_json
+    Cache.save game.dump
     {
         board: game.pieces,
         results: {
@@ -53,12 +54,11 @@ class App < Sinatra::Application
     if column.nil? || player.nil?
       raise BadParam
     end
-    game_contents = JSON.parse @db.get('curr_game')
+    game_contents = Cache.current
     game = Game.new(game_contents['size'], game_contents['pieces'], game_contents['piece_count'])
     game.add_piece column, player
     results = game.check_for_victory
-    json = game.dump.to_json
-    @db.set 'curr_game', json
+    Cache.save game.dump
     {
         board: game.pieces,
         results: results

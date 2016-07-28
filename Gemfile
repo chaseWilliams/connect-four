@@ -4,5 +4,5 @@ source "https://rubygems.org"
 gem 'rest-client'
 gem 'sinatra'
 gem 'thin'
-gem 'redis'
+gem 'mongo'
 # gem "rails"

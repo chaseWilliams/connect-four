@@ -13,6 +13,7 @@ class Game
       @pieces = pieces
       @piece_count = piece_count
     end
+    @db = Mongo::Client.new 'mongodb://127.0.0.1:27017/test' #default mongod instance
   end
 
   def add_piece col, player
@@ -24,13 +25,12 @@ class Game
   end
 
   def check_for_victory
-    print @pieces.board_print
-    (1..2).each do |player|
-      return {win: true, player: player} if horizontal_check player
-      return {win: true, player: player} if vertical_check player
-      return {win: true, player: player} if diagonal_check player
+    result = begin_check
+    if result[:win]
+      history = @db[:history]
+      history.insert_one self.dump
     end
-    {win: false, player: nil}
+    result
   end
 
   ## Game#dump and Game#load are for serializing and reconstituting the object,
@@ -48,6 +48,16 @@ class Game
   end
 
   private
+
+  def begin_check
+    print @pieces.board_print
+    (1..2).each do |player|
+      return {win: true, player: player} if horizontal_check player
+      return {win: true, player: player} if vertical_check player
+      return {win: true, player: player} if diagonal_check player
+    end
+    {win: false, player: nil}
+  end
 
   def horizontal_check player
     @pieces.each do |row|
@@ -117,22 +127,3 @@ class Game
     end
   end
 end
-
-game = Game.new(5)
-game.add_piece 0, 1
-game.add_piece 0, 2
-game.add_piece 0, 1
-game.add_piece 0, 1
-game.add_piece 1, 1
-game.add_piece 1, 1
-game.add_piece 1, 1
-game.add_piece 2, 2
-game.add_piece 2, 1
-game.add_piece 3, 1
-puts game.check_for_victory ? 'yes' : 'no'
-print game.pieces.board_print
-
-json = game.dump.to_json
-parsed = JSON.parse json
-board = Game.new(parsed['size'], parsed['pieces'], parsed['piece_count'])
-print board.pieces.board_print
